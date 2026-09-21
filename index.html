@@ -769,14 +769,7 @@ if (!socket.connected) {
 
   return;
  }
- socket.emit("createRoom",{
-  name:playerName||"Oyuncu 1",
-  token:playerToken||null
- },function(result){
-
-  if(!result || !result.ok){
-   toast(result?.error||"Oda oluşturulamadı.");
-   return;
+ 
   }
 
   roomCode=result.roomCode;
