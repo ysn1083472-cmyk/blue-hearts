@@ -8,119 +8,58 @@
 <style>
 *{box-sizing:border-box}
 html,body{
- margin:0;width:100%;height:100%;
- overflow:hidden;
- font-family:Arial,sans-serif;
- background:#041126;color:#fff
+ margin:0;width:100%;height:100%;overflow:hidden;
+ font-family:Arial,sans-serif;background:#031126;color:#fff
 }
 button,input,textarea{font:inherit}
 button{
- border:0;border-radius:14px;
- padding:13px 16px;
- background:#176bd1;color:#fff;
- font-weight:bold;
- cursor:pointer
+ border:0;border-radius:14px;padding:13px 16px;
+ background:#1675d1;color:#fff;font-weight:bold
 }
 button:active{transform:scale(.96)}
 input,textarea{
- width:100%;padding:13px;
- border-radius:12px;
- border:1px solid #315b91;
- background:#0a2141;color:white;
- outline:none
+ width:100%;padding:13px;border-radius:12px;
+ border:1px solid #315b91;background:#09203d;color:#fff;outline:0
 }
 textarea{resize:none}
 .hidden{display:none!important}
 
-.screen{
- position:absolute;inset:0;
- display:none;
- overflow:auto
-}
+.screen{position:absolute;inset:0;display:none;overflow:auto}
 .screen.active{display:block}
 
 #menu{
- background:
- radial-gradient(circle at 50% 0,#15539a,#06152d 65%);
+ background:radial-gradient(circle at 50% 0,#1764aa,#06152d 65%)
 }
-.wrap{
- width:min(850px,94%);
- margin:auto;
- padding:25px 0 60px
-}
-.title{
- text-align:center;
- font-size:40px;
- color:#7fd2ff;
- margin:15px 0 5px
-}
-.subtitle{
- text-align:center;
- color:#aac9eb;
- margin-bottom:25px
-}
+.wrap{width:min(850px,94%);margin:auto;padding:25px 0 60px}
+.title{text-align:center;font-size:40px;color:#7fd5ff;margin:15px 0 5px}
+.subtitle{text-align:center;color:#aac9eb;margin-bottom:25px}
+
 .card{
- background:#09203eeF;
- border:1px solid #28578a;
- border-radius:20px;
- padding:18px;
- box-shadow:0 10px 30px #0007
-}
-.avatar{
- width:90px;height:90px;
- margin:auto;
- border-radius:50%;
- border:3px solid #70cfff;
- background:#155d9d;
- display:flex;
- align-items:center;
- justify-content:center;
- font-size:40px;
- overflow:hidden
-}
-.avatar img{
- width:100%;height:100%;
- object-fit:cover
+ background:#09203eee;border:1px solid #28578a;border-radius:20px;
+ padding:18px;box-shadow:0 10px 30px #0007;margin-bottom:12px
 }
 .spacer{height:12px}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
-.grid{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:10px
-}
-.small{
- color:#9bb9dc;
- font-size:13px
-}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .center{text-align:center}
+.small{color:#9bb9dc;font-size:13px}
 
-.statbar{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:8px
+.avatar{
+ width:90px;height:90px;margin:auto;border-radius:50%;
+ border:3px solid #70cfff;background:#155d9d;
+ display:flex;align-items:center;justify-content:center;
+ font-size:40px;overflow:hidden
 }
-.stat{
- padding:11px;
- background:#0b284c;
- border-radius:12px;
- text-align:center
-}
-.stat b{
- display:block;
- color:#79caff;
- font-size:20px
-}
+.avatar img{width:100%;height:100%;object-fit:cover}
 
-#game{
- background:#020b18
-}
+.statbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{padding:11px;background:#0b284c;border-radius:12px;text-align:center}
+.stat b{display:block;color:#79caff;font-size:20px}
+
+#game{background:#020b18}
 #world{
- position:relative;
- width:100%;
- height:100%;
- overflow:hidden;
+ position:relative;width:100%;height:100%;overflow:hidden;
  background:
  radial-gradient(circle,#16416d 1px,transparent 2px),
  linear-gradient(#071a35,#020913);
@@ -128,198 +67,93 @@ textarea{resize:none}
 }
 
 #topbar{
- position:absolute;
- top:10px;
- left:10px;
- right:10px;
- z-index:50;
- display:flex;
- flex-wrap:wrap;
- gap:7px
+ position:absolute;top:10px;left:10px;right:10px;
+ z-index:50;display:flex;flex-wrap:wrap;gap:7px
 }
 .pill{
- background:#061a34dd;
- border:1px solid #315987;
- border-radius:20px;
- padding:8px 11px
+ background:#061a34dd;border:1px solid #315987;
+ border-radius:20px;padding:8px 11px
 }
 
 .actor{
- position:absolute;
- width:68px;height:68px;
- border-radius:50%;
- background:#145b99;
- border:3px solid #7ed4ff;
- display:flex;
- align-items:center;
- justify-content:center;
- font-size:31px;
- z-index:10;
- transition:left .08s linear,top .08s linear
+ position:absolute;width:68px;height:68px;border-radius:50%;
+ background:#145b99;border:3px solid #7ed4ff;
+ display:flex;align-items:center;justify-content:center;
+ font-size:31px;z-index:10;transition:left .08s linear,top .08s linear
 }
-.actor img{
- width:100%;height:100%;
- object-fit:cover;
- border-radius:50%
-}
+.actor img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .actor span{
- position:absolute;
- top:70px;
- white-space:nowrap;
- font-size:12px;
- background:#061a34dd;
- padding:4px 7px;
- border-radius:8px
+ position:absolute;top:70px;white-space:nowrap;font-size:12px;
+ background:#061a34dd;padding:4px 7px;border-radius:8px
 }
 #partner{border-color:#ff9dca}
 
 #interaction{
- position:absolute;
- left:50%;top:42%;
- transform:translate(-50%,-50%);
- width:min(280px,80%);
- padding:17px;
- text-align:center;
- background:#08254aed;
- border:1px solid #3973a5;
- border-radius:20px;
- z-index:4
+ position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);
+ width:min(300px,82%);padding:17px;text-align:center;
+ background:#08254aed;border:1px solid #3973a5;border-radius:20px;z-index:4
 }
-#interaction h3{
- margin:0 0 7px;
- color:#83d4ff
-}
+#interaction h3{margin:0 0 7px;color:#83d4ff}
 
 #controls{
- position:absolute;
- bottom:15px;
- left:0;right:0;
- padding:0 15px;
- display:flex;
- justify-content:space-between;
- align-items:end;
- z-index:60
+ position:absolute;bottom:15px;left:0;right:0;padding:0 15px;
+ display:flex;justify-content:space-between;align-items:end;z-index:60
 }
-
 #joystick{
- width:125px;height:125px;
- border-radius:50%;
- background:#0b2d50aa;
- border:2px solid #4b88bb;
- position:relative;
- touch-action:none
+ width:125px;height:125px;border-radius:50%;
+ background:#0b2d50aa;border:2px solid #4b88bb;
+ position:relative;touch-action:none
 }
 #stick{
- position:absolute;
- width:52px;height:52px;
- border-radius:50%;
- background:#55c1ff;
- left:34px;top:34px
+ position:absolute;width:52px;height:52px;border-radius:50%;
+ background:#55c1ff;left:34px;top:34px
 }
-.actions{
- display:grid;
- grid-template-columns:repeat(2,70px);
- gap:8px
-}
-.actions button{
- width:70px;height:55px;
- padding:4px;
- font-size:12px
-}
+.actions{display:grid;grid-template-columns:repeat(2,70px);gap:8px}
+.actions button{width:70px;height:55px;padding:4px;font-size:12px}
 
 #panel{
- position:absolute;
- inset:0;
- z-index:100;
- display:none;
- overflow:auto;
- background:#020914f2
+ position:absolute;inset:0;z-index:100;display:none;
+ overflow:auto;background:#020914f5
 }
 #panel.show{display:block}
-#panelBox{
- width:min(650px,94%);
- margin:35px auto 70px
-}
-
-.panelContent{margin-bottom:20px}
+#panelBox{width:min(650px,94%);margin:35px auto 70px}
 
 .chatbox{
- height:300px;
- overflow:auto;
- background:#04152c;
- border:1px solid #21476e;
- border-radius:15px;
- padding:10px
+ height:300px;overflow:auto;background:#04152c;
+ border:1px solid #21476e;border-radius:15px;padding:10px
 }
-.msg{
- padding:8px 10px;
- margin:6px 0;
- background:#102f53;
- border-radius:12px;
- max-width:85%
-}
-.msg.me{
- margin-left:auto;
- background:#155c98
-}
-.who{
- font-size:11px;
- color:#8bcfff;
- margin-bottom:3px
-}
+.msg{padding:8px 10px;margin:6px 0;background:#102f53;border-radius:12px;max-width:85%}
+.msg.me{margin-left:auto;background:#155c98}
+.who{font-size:11px;color:#8bcfff;margin-bottom:3px}
 
 .memory{
- background:#0c2a4c;
- padding:12px;
- border-radius:12px;
- margin:8px 0;
- border-left:3px solid #62caff
+ background:#0c2a4c;padding:12px;border-radius:12px;
+ margin:8px 0;border-left:3px solid #62caff
 }
 
 .modal{
- position:fixed;
- inset:0;
- z-index:300;
- background:#000b;
- display:none;
- align-items:center;
- justify-content:center;
- padding:15px
+ position:fixed;inset:0;z-index:300;background:#000b;
+ display:none;align-items:center;justify-content:center;padding:15px
 }
 .modal.show{display:flex}
 .modalBox{
- width:min(500px,95%);
- background:#08203d;
- border:1px solid #3773a7;
- border-radius:22px;
- padding:20px
+ width:min(500px,95%);background:#08203d;
+ border:1px solid #3773a7;border-radius:22px;padding:20px
 }
 
 .gameArea{
- height:300px;
- position:relative;
- overflow:hidden;
- border-radius:16px;
- background:#06172e;
- border:1px solid #2a5d89
+ height:300px;position:relative;overflow:hidden;border-radius:16px;
+ background:#06172e;border:1px solid #2a5d89
 }
 .target{
- position:absolute;
- width:44px;height:44px;
- border-radius:50%;
- background:#ff5f9f;
- display:flex;
- align-items:center;
- justify-content:center;
- cursor:pointer
+ position:absolute;width:44px;height:44px;border-radius:50%;
+ background:#ff5f9f;display:flex;align-items:center;
+ justify-content:center;cursor:pointer
 }
 
 .heart{
- position:fixed;
- z-index:500;
- pointer-events:none;
- font-size:28px;
- animation:float 1.3s forwards
+ position:fixed;z-index:500;pointer-events:none;
+ font-size:28px;animation:float 1.3s forwards
 }
 @keyframes float{
  from{transform:translateY(0) scale(.7);opacity:1}
@@ -327,20 +161,11 @@ textarea{resize:none}
 }
 
 #toast{
- position:fixed;
- left:50%;
- bottom:20px;
- transform:translateX(-50%);
- z-index:1000;
- background:#0d3159;
- border:1px solid #4282b8;
- padding:12px 18px;
- border-radius:14px;
- display:none;
- max-width:90%;
- text-align:center
+ position:fixed;left:50%;bottom:20px;transform:translateX(-50%);
+ z-index:1000;background:#0d3159;border:1px solid #4282b8;
+ padding:12px 18px;border-radius:14px;display:none;
+ max-width:90%;text-align:center
 }
-#toast.show{display:block}
 
 @media(max-width:600px){
  .title{font-size:31px}
@@ -354,8 +179,6 @@ textarea{resize:none}
 
 <body>
 
-<div id="app">
-
 <section id="menu" class="screen active">
 <div class="wrap">
 
@@ -365,7 +188,6 @@ textarea{resize:none}
 <div class="card">
 
 <div class="avatar" id="myAvatar">💙</div>
-
 <div class="spacer"></div>
 
 <input id="myName" maxlength="30" placeholder="Senin adın">
@@ -379,9 +201,7 @@ textarea{resize:none}
 
 <div class="spacer"></div>
 
-<button style="width:100%" onclick="saveProfile()">
-💾 Profili Kaydet
-</button>
+<button style="width:100%" onclick="saveProfile()">💾 Profili Kaydet</button>
 
 <div class="spacer"></div>
 
@@ -398,24 +218,18 @@ textarea{resize:none}
 
 <div class="spacer"></div>
 
-<div class="small center">
-Online mod için internet bağlantısı gerekir.
-</div>
+<div class="small center">Online mod için internet bağlantısı gerekir.</div>
 
 </div>
-
-<div class="spacer"></div>
 
 <div class="card">
 <h3>📊 İstatistikler</h3>
-
 <div class="statbar">
 <div class="stat"><b id="menuHearts">0</b>Kalp</div>
 <div class="stat"><b id="menuXP">0</b>XP</div>
 <div class="stat"><b id="menuHugs">0</b>Sarılma</div>
 <div class="stat"><b id="menuMem">0</b>Anı</div>
 </div>
-
 </div>
 
 </div>
@@ -437,9 +251,7 @@ Online mod için internet bağlantısı gerekir.
 
 <div id="interaction">
 <h3>💙 Blue Hearts</h3>
-<div id="interactionText">
-Birlikte güzel vakit geçir.
-</div>
+<div id="interactionText">Birlikte güzel vakit geçir.</div>
 </div>
 
 <div id="me" class="actor" style="left:120px;top:250px">
@@ -453,7 +265,6 @@ Birlikte güzel vakit geçir.
 </div>
 
 <div id="controls">
-
 <div id="joystick">
 <div id="stick"></div>
 </div>
@@ -464,7 +275,6 @@ Birlikte güzel vakit geçir.
 <button onclick="openPanel('chatPanel')">💬<br>Sohbet</button>
 <button onclick="openPanel('gamePanel')">🎮<br>Oyun</button>
 </div>
-
 </div>
 
 </div>
@@ -472,7 +282,6 @@ Birlikte güzel vakit geçir.
 
 
 <div id="panel">
-
 <div id="panelBox">
 
 <div id="menuPanel" class="card panelContent hidden">
@@ -488,10 +297,7 @@ Birlikte güzel vakit geçir.
 </div>
 
 <div class="spacer"></div>
-
-<button onclick="closePanel()" style="width:100%;background:#31506f">
-Kapat
-</button>
+<button onclick="closePanel()" style="width:100%;background:#31506f">Kapat</button>
 </div>
 
 
@@ -528,11 +334,9 @@ Kapat
 placeholder="Güzel bir anınızı yaz..."></textarea>
 
 <div class="spacer"></div>
-
 <button onclick="addMemory()">💙 Anıyı Kaydet</button>
 
 <div class="spacer"></div>
-
 <div id="memories"></div>
 
 <button onclick="closePanel()">Kapat</button>
@@ -541,19 +345,15 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 
 <div id="taskPanel" class="card panelContent hidden">
 <h2>📅 Günlük Görevler</h2>
-
 <div id="tasks"></div>
 
 <div class="spacer"></div>
-
 <button onclick="dailyReward()">🎁 Günlük Ödülü</button>
 
 <div class="spacer"></div>
-
 <div id="achievements"></div>
 
 <div class="spacer"></div>
-
 <button onclick="closePanel()">Kapat</button>
 </div>
 
@@ -569,11 +369,9 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 </div>
 
 <div class="spacer"></div>
-
 <div id="miniGameArea"></div>
 
 <div class="spacer"></div>
-
 <button onclick="closePanel()">Kapat</button>
 </div>
 
@@ -585,7 +383,7 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 
 <div class="spacer"></div>
 
-<input id="profileName" maxlength="30">
+<input id="profileName" maxlength="30" placeholder="Adın">
 
 <div class="spacer"></div>
 
@@ -597,7 +395,6 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 </div>
 
 <div class="spacer"></div>
-
 <button onclick="saveProfile()">💾 Kaydet</button>
 <button onclick="closePanel()">Kapat</button>
 </div>
@@ -607,7 +404,6 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 <h2>⚙️ Ayarlar</h2>
 
 <label>🔊 Ses seviyesi</label>
-
 <input id="volume" type="range" min="0" max="100" value="70">
 
 <div class="spacer"></div>
@@ -620,9 +416,7 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 <div class="spacer"></div>
 
 <button onclick="toggleMusic()">🎵 Müzik Aç/Kapat</button>
-
 <button onclick="vibrate()">📳 Titreşim</button>
-
 <button onclick="fullscreen()">⛶ Tam Ekran</button>
 
 <div class="spacer"></div>
@@ -632,7 +426,6 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 </button>
 
 <div class="spacer"></div>
-
 <button onclick="closePanel()">Kapat</button>
 </div>
 
@@ -641,38 +434,27 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 
 
 <div id="joinModal" class="modal">
-
 <div class="modalBox">
-
 <h2>🔑 Odaya Katıl</h2>
 
-<input id="joinCode"
-maxlength="6"
-inputmode="numeric"
+<input id="joinCode" maxlength="6" inputmode="numeric"
 placeholder="6 haneli oda kodu">
 
 <div class="spacer"></div>
 
-<button onclick="joinRoom()" style="width:100%">
-Katıl
-</button>
+<button onclick="joinRoom()" style="width:100%">Katıl</button>
 
 <div class="spacer"></div>
 
 <button onclick="hideJoin()" style="width:100%;background:#31506f">
 İptal
 </button>
-
 </div>
 </div>
-
 
 <div id="toast"></div>
 
 <audio id="music" loop></audio>
-
-</div>
-
 
 <script src="/socket.io/socket.io.js"></script>
 
@@ -680,23 +462,26 @@ Katıl
 "use strict";
 
 /* =========================
-   BAŞLANGIÇ
+   TEMEL DEĞİŞKENLER
 ========================= */
 
 let socket=null;
+let connected=false;
+let offline=false;
+let musicURL="";
+let musicPlaying=false;
 
 try{
  if(typeof io==="function"){
-   socket=io({
-     transports:["websocket","polling"]
-   });
+  socket=io({
+   transports:["polling","websocket"],
+   reconnection:true,
+   reconnectionAttempts:10
+  });
  }
 }catch(e){
- console.error(e);
+ console.error("Socket başlatılamadı:",e);
 }
-
-let connected=false;
-let offline=false;
 
 let roomCode=localStorage.getItem("bh_room")||"";
 let playerId=localStorage.getItem("bh_player")||"";
@@ -723,10 +508,28 @@ function $(id){
 }
 
 function safeUUID(){
- if(typeof crypto!=="undefined" && crypto.randomUUID){
+ try{
+  if(window.crypto && crypto.randomUUID)
    return crypto.randomUUID();
- }
+ }catch(e){}
  return Date.now().toString(36)+Math.random().toString(36).slice(2);
+}
+
+
+/* =========================
+   LOCAL KAYIT
+========================= */
+
+function loadLocal(){
+ try{
+  state.memories=JSON.parse(localStorage.getItem("bh_memories")||"[]");
+  state.messages=JSON.parse(localStorage.getItem("bh_messages")||"[]");
+  state.achievements=JSON.parse(localStorage.getItem("bh_achievements")||"[]");
+ }catch(e){
+  state.memories=[];
+  state.messages=[];
+  state.achievements=[];
+ }
 }
 
 function saveLocal(){
@@ -736,60 +539,43 @@ function saveLocal(){
  localStorage.setItem("bh_name",playerName);
  localStorage.setItem("bh_avatar",avatarData);
 
- localStorage.setItem("bh_hearts",state.hearts);
- localStorage.setItem("bh_xp",state.xp);
- localStorage.setItem("bh_hugs",state.hugs);
+ localStorage.setItem("bh_hearts",String(state.hearts));
+ localStorage.setItem("bh_xp",String(state.xp));
+ localStorage.setItem("bh_hugs",String(state.hugs));
 
  localStorage.setItem("bh_memories",JSON.stringify(state.memories));
  localStorage.setItem("bh_messages",JSON.stringify(state.messages));
  localStorage.setItem("bh_achievements",JSON.stringify(state.achievements));
 
- localStorage.setItem("bh_x",pos.x);
- localStorage.setItem("bh_y",pos.y);
-}
-
-function loadLocal(){
- try{
-   state.memories=JSON.parse(
-     localStorage.getItem("bh_memories")||"[]"
-   );
-   state.messages=JSON.parse(
-     localStorage.getItem("bh_messages")||"[]"
-   );
-   state.achievements=JSON.parse(
-     localStorage.getItem("bh_achievements")||"[]"
-   );
- }catch(e){
-   state.memories=[];
-   state.messages=[];
-   state.achievements=[];
- }
+ localStorage.setItem("bh_x",String(pos.x));
+ localStorage.setItem("bh_y",String(pos.y));
 }
 
 loadLocal();
 
-$("myName").value=playerName;
-$("profileName").value=playerName;
-
 
 /* =========================
-   EKRAN
+   EKRAN / PANEL
 ========================= */
 
 function showScreen(id){
- document.querySelectorAll(".screen")
- .forEach(x=>x.classList.remove("active"));
-
+ document.querySelectorAll(".screen").forEach(x=>{
+  x.classList.remove("active");
+ });
  $(id).classList.add("active");
 }
 
 function openPanel(id){
  $("panel").classList.add("show");
 
- document.querySelectorAll(".panelContent")
- .forEach(x=>x.classList.add("hidden"));
+ document.querySelectorAll(".panelContent").forEach(x=>{
+  x.classList.add("hidden");
+ });
 
- $(id).classList.remove("hidden");
+ const el=$(id);
+ if(!el)return;
+
+ el.classList.remove("hidden");
 
  if(id==="chatPanel")renderMessages();
  if(id==="memoryPanel")renderMemories();
@@ -801,15 +587,24 @@ function closePanel(){
  $("panel").classList.remove("show");
 }
 
+function showJoin(){
+ $("joinModal").classList.add("show");
+ $("joinCode").focus();
+}
+
+function hideJoin(){
+ $("joinModal").classList.remove("show");
+}
+
 function toast(text){
  const t=$("toast");
  t.textContent=text;
  t.style.display="block";
 
- clearTimeout(window.__toast);
+ clearTimeout(window.__toastTimer);
 
- window.__toast=setTimeout(()=>{
-   t.style.display="none";
+ window.__toastTimer=setTimeout(()=>{
+  t.style.display="none";
  },2500);
 }
 
@@ -820,14 +615,13 @@ function toast(text){
 
 function saveProfile(){
  const n=(
-   $("profileName").value ||
-   $("myName").value ||
-   ""
+  $("profileName").value ||
+  $("myName").value ||
+  playerName ||
+  "Oyuncu"
  ).trim();
 
- if(n){
-   playerName=n.slice(0,30);
- }
+ playerName=n.slice(0,30);
 
  $("myName").value=playerName;
  $("profileName").value=playerName;
@@ -836,31 +630,33 @@ function saveProfile(){
  updateUI();
 
  if(connected && socket){
-   socket.emit("updateProfile",{
-     name:playerName
-   });
+  socket.emit("updateProfile",{name:playerName});
  }
 
  toast("Profil kaydedildi 💙");
 }
 
-$("avatarInput").addEventListener("change",e=>{
- const file=e.target.files[0];
+$("avatarInput").addEventListener("change",function(e){
+ const file=e.target.files && e.target.files[0];
 
  if(!file)return;
 
  if(file.size>2*1024*1024){
-   toast("Fotoğraf 2 MB'dan küçük olmalı.");
-   return;
+  toast("Fotoğraf 2 MB'dan küçük olmalı.");
+  return;
  }
 
  const reader=new FileReader();
 
- reader.onload=()=>{
-   avatarData=reader.result;
-   saveLocal();
-   updateUI();
-   toast("Fotoğraf kaydedildi 📷");
+ reader.onload=function(){
+  avatarData=reader.result;
+  saveLocal();
+  updateUI();
+  toast("Fotoğraf kaydedildi 📷");
+ };
+
+ reader.onerror=function(){
+  toast("Fotoğraf okunamadı.");
  };
 
  reader.readAsDataURL(file);
@@ -870,8 +666,12 @@ function renderProfile(){
  $("profileName").value=playerName;
 
  if(avatarData){
-   $("profileAvatar").innerHTML=
-   "<img src='"+avatarData+"'>";
+  $("profileAvatar").innerHTML="";
+  const img=document.createElement("img");
+  img.src=avatarData;
+  $("profileAvatar").appendChild(img);
+ }else{
+  $("profileAvatar").textContent="💙";
  }
 }
 
@@ -897,171 +697,160 @@ function updateUI(){
  $("pMemories").textContent=state.memories.length;
 
  $("roomText").textContent=roomCode||"-";
-
  $("meName").textContent=playerName||"Sen";
 
+ $("me").style.left=pos.x+"px";
+ $("me").style.top=pos.y+"px";
+
  if(avatarData){
-   $("myAvatar").innerHTML=
-   "<img src='"+avatarData+"'>";
+  $("myAvatar").innerHTML="";
+  const img1=document.createElement("img");
+  img1.src=avatarData;
+  $("myAvatar").appendChild(img1);
 
-   $("profileAvatar").innerHTML=
-   "<img src='"+avatarData+"'>";
+  $("me").innerHTML="";
+  const img2=document.createElement("img");
+  img2.src=avatarData;
+  $("me").appendChild(img2);
 
-   $("me").innerHTML=
-   "<img src='"+avatarData+"'><span id='meName'></span>";
-
-   $("meName").textContent=playerName||"Sen";
+  const span=document.createElement("span");
+  span.id="meName";
+  span.textContent=playerName||"Sen";
+  $("me").appendChild(span);
+ }else{
+  $("myAvatar").textContent="💙";
  }
 
  saveLocal();
 }
 
-updateUI();
-
 
 /* =========================
-   ONLINE
+   ODA OLUŞTUR
 ========================= */
 
-if(socket){
+function createRoom(){
 
- socket.on("connect",()=>{
-   connected=true;
+ if(!socket){
+  toast("Online bağlantısı yüklenemedi.");
+  return;
+ }
 
-   $("status").textContent="🟢 Online";
+ saveProfile();
 
-   toast("Sunucuya bağlandı 💙");
+ socket.emit("createRoom",{
+  name:playerName||"Oyuncu 1",
+  token:playerToken||null
+ },function(result){
 
-   if(roomCode && playerToken){
+  if(!result || !result.ok){
+   toast(result?.error||"Oda oluşturulamadı.");
+   return;
+  }
 
-     socket.emit(
-       "rejoinRoom",
-       {
-         roomCode:roomCode,
-         token:playerToken
-       },
-       result=>{
+  roomCode=result.roomCode;
+  playerId=result.playerId;
+  playerToken=result.token;
 
-         if(result && result.ok){
+  offline=false;
 
-           playerId=result.playerId;
+  saveLocal();
+  applyState(result.state);
 
-           applyState(result.state);
+  showScreen("game");
 
-           $("status").textContent="🟢 Online";
+  $("status").textContent="🟢 Online";
 
-         }else{
-
-           roomCode="";
-           playerId="";
-           playerToken="";
-
-           saveLocal();
-
-         }
-
-       }
-     );
-   }
+  toast("Odan oluşturuldu: "+roomCode);
  });
-
- socket.on("connect_error",()=>{
-   connected=false;
-   $("status").textContent="🔴 Sunucu bağlantısı yok";
- });
-
- socket.on("disconnect",()=>{
-   connected=false;
-   $("status").textContent="🔴 Bağlantı kesildi";
- });
-
- socket.on("state",stateData=>{
-   applyState(stateData);
- });
-
- socket.on("position",data=>{
-   if(!data)return;
-
-   if(data.playerId===playerId)return;
-
-   $("partner").style.left=data.x+"px";
-   $("partner").style.top=data.y+"px";
- });
-
- socket.on("heart",data=>{
-   if(data){
-     state.hearts=Number(data.hearts||0);
-     state.xp=Number(data.xp||0);
-   }
-
-   createHeart("💙");
-   updateUI();
- });
-
- socket.on("hug",data=>{
-   if(data){
-     state.hugs=Number(data.hugs||0);
-     state.hearts=Number(data.hearts||0);
-     state.xp=Number(data.xp||0);
-   }
-
-   createHeart("🤗");
-   createHeart("💙");
-
-   updateUI();
- });
-
- socket.on("message",message=>{
-   if(!message)return;
-
-   if(!state.messages.some(x=>x.id===message.id)){
-     state.messages.push(message);
-   }
-
-   renderMessages();
-   saveLocal();
- });
-
- socket.on("memory",memory=>{
-   if(!memory)return;
-
-   if(!state.memories.some(x=>x.id===memory.id)){
-     state.memories.push(memory);
-   }
-
-   renderMemories();
-   updateUI();
- });
-
- socket.on("chestOpened",data=>{
-   if(data){
-     state.hearts=Number(data.hearts||0);
-     state.xp=Number(data.xp||0);
-   }
-
-   createHeart("🎁");
-   toast("🎁 Sandık açıldı! +50 💙");
-
-   updateUI();
- });
-
- socket.on("achievement",()=>{
-   toast("🏆 Başarım açıldı!");
-   updateUI();
- });
-
- socket.on("gameScore",data=>{
-   if(data){
-     state.hearts=Number(data.hearts||0);
-     state.xp=Number(data.xp||0);
-   }
-
-   updateUI();
- });
-
 }
 
 
 /* =========================
-   ODA
-========
+   ODAYA KATIL
+========================= */
+
+function joinRoom(){
+
+ const code=$("joinCode").value.trim();
+
+ if(!/^\d{6}$/.test(code)){
+  toast("6 haneli oda kodu gir.");
+  return;
+ }
+
+ if(!socket){
+  toast("Online bağlantısı yüklenemedi.");
+  return;
+ }
+
+ saveProfile();
+
+ socket.emit("joinRoom",{
+  roomCode:code,
+  name:playerName||"Oyuncu 2",
+  token:playerToken||null
+ },function(result){
+
+  if(!result || !result.ok){
+   toast(result?.error||"Odaya katılınamadı.");
+   return;
+  }
+
+  roomCode=result.roomCode;
+  playerId=result.playerId;
+  playerToken=result.token;
+
+  offline=false;
+
+  saveLocal();
+  applyState(result.state);
+
+  hideJoin();
+  showScreen("game");
+
+  $("status").textContent="🟢 Online";
+
+  toast("Odaya katıldın 💙");
+ });
+}
+
+
+/* =========================
+   OFFLINE
+========================= */
+
+function offlineMode(){
+ offline=true;
+ connected=false;
+
+ roomCode="";
+ playerId="";
+ playerToken="";
+
+ saveLocal();
+ showScreen("game");
+
+ $("status").textContent="🟡 Çevrimdışı";
+ $("interactionText").textContent="Çevrimdışı moddasın. 💙";
+
+ toast("Çevrimdışı oyun başladı.");
+}
+
+
+/* =========================
+   SERVER STATE
+========================= */
+
+function applyState(data){
+
+ if(!data)return;
+
+ if(typeof data.hearts!=="undefined")
+  state.hearts=Number(data.hearts)||0;
+
+ if(typeof data.xp!=="undefined")
+  state.xp=Number(data.xp)||0;
+
+ if(typeof data.hugs!=="undefined")
+  st
