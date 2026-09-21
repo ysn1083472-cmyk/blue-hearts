@@ -737,7 +737,38 @@ function createRoom(){
  }
 
  saveProfile();
+if (!socket) {
+  toast("Sunucu bağlantısı kurulamadı.");
+  return;
+}
 
+if (!socket.connected) {
+  toast("Sunucuya bağlanılıyor...");
+  socket.connect();
+
+  setTimeout(() => {
+    if (socket.connected) {
+      socket.emit("createRoom", {
+        name: playerName || "Oyuncu 1",
+        token: playerToken || null
+      }, function(result) {
+        if (!result || !result.ok) {
+          toast(result?.error || "Oda oluşturulamadı.");
+          return;
+        }
+
+        roomCode = result.roomCode;
+        playerId = result.playerId;
+        playerToken = result.token;
+        offline = false;
+      });
+    } else {
+      toast("Sunucuya bağlanılamadı.");
+    }
+  }, 1500);
+
+  return;
+ }
  socket.emit("createRoom",{
   name:playerName||"Oyuncu 1",
   token:playerToken||null
