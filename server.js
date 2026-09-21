@@ -7,35 +7,72 @@ const crypto = require("crypto");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 
 const DATA_DIR = path.join(__dirname, "data");
 const ROOMS_FILE = path.join(DATA_DIR, "rooms.json");
 
+/* =========================
+   DATA KLASÖRÜ
+========================= */
+
 if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.mkdirSync(DATA_DIR, {
+    recursive: true
+  });
 }
 
 if (!fs.existsSync(ROOMS_FILE)) {
-  fs.writeFileSync(ROOMS_FILE, JSON.stringify({}, null, 2));
+  fs.writeFileSync(
+    ROOMS_FILE,
+    JSON.stringify({}, null, 2),
+    "utf8"
+  );
 }
 
 let rooms = {};
 
 try {
-  rooms = JSON.parse(fs.readFileSync(ROOMS_FILE, "utf8"));
-} catch {
+  const data = fs.readFileSync(
+    ROOMS_FILE,
+    "utf8"
+  );
+
+  rooms = data ? JSON.parse(data) : {};
+} catch (error) {
+  console.error(
+    "rooms.json okunamadı:",
+    error
+  );
+
   rooms = {};
 }
 
+/* =========================
+   YARDIMCI FONKSİYONLAR
+========================= */
+
 function saveRooms() {
-  fs.writeFileSync(
-    ROOMS_FILE,
-    JSON.stringify(rooms, null, 2),
-    "utf8"
-  );
+  try {
+    fs.writeFileSync(
+      ROOMS_FILE,
+      JSON.stringify(rooms, null, 2),
+      "utf8"
+    );
+  } catch (error) {
+    console.error(
+      "Odalar kaydedilemedi:",
+      error
+    );
+  }
 }
 
 function cleanText(value, max = 500) {
@@ -49,548 +86,1268 @@ function randomRoomCode() {
   let code;
 
   do {
-    code = String(Math.floor(100000 + Math.random() * 900000));
+    code = String(
+      Math.floor(
+        100000 + Math.random() * 900000
+      )
+    );
   } while (rooms[code]);
 
   return code;
-}
-
-function publicRoom(roomCode) {
-  const room = rooms[roomCode];
-
-  if (!room) return null;
-
-  return {
-    code: roomCode,
-    createdAt: room.createdAt,
-    hearts: room.hearts,
-    xp: room.xp,
-    hugs: room.hugs,
-    chestOpened: room.chestOpened,
-    memories: room.memories,
-    messages: room.messages,
-    achievements: room.achievements,
-    players: Object.values(room.players).map((p) => ({
-      id: p.id,
-      name: p.name,
-      x: p.x,
-      y: p.y,
-      online: p.online
-    }))
-  };
-}
-
-function emitRoom(roomCode) {
-  io.to(roomCode).emit("state", publicRoom(roomCode));
-}
-
-function findPlayer(roomCode, socketId) {
-  const room = rooms[roomCode];
-  if (!room) return null;
-
-  for (const playerId of Object.keys(room.players)) {
-    if (room.players[playerId].socketId === socketId) {
-      return playerId;
-    }
-  }
-
-  return null;
 }
 
 function createPlayerToken() {
   return crypto.randomBytes(18).toString("hex");
 }
 
-app.use(express.json({ limit: "1mb" }));
-app.use(express.static(path.join(__dirname, "public")));
+function publicRoom(roomCode) {
+  const room = rooms[roomCode];
 
-app.get("/api/room/:code", (req, res) => {
-  const code = cleanText(req.params.code, 6);
-
-  if (!rooms[code]) {
-    return res.status(404).json({
-      ok: false,
-      error: "Oda bulunamadı."
-    });
+  if (!room) {
+    return null;
   }
 
-  res.json({
-    ok: true,
-    room: publicRoom(code)
-  });
-});
+  return {
+    code: roomCode,
+    createdAt: room.createdAt,
+
+    hearts: room.hearts || 0,
+    xp: room.xp || 0,
+    hugs: room.hugs || 0,
+
+    chestOpened: !!room.chestOpened,
+
+    memories: room.memories || [],
+    messages: room.messages || [],
+    achievements: room.achievements || [],
+
+    players: Object.values(
+      room.players || {}
+    ).map((player) => ({
+      id: player.id,
+      name: player.name,
+      x: player.x,
+      y: player.y,
+      online: !!player.online
+    }))
+  };
+}
+
+function emitRoom(roomCode) {
+  const state = publicRoom(roomCode);
+
+  if (!state) {
+    return;
+  }
+
+  io.to(roomCode).emit(
+    "state",
+    state
+  );
+}
+
+/* =========================
+   EXPRESS
+========================= */
+
+app.use(
+  express.json({
+    limit: "1mb"
+  })
+);
+
+app.use(
+  express.static(
+    path.join(__dirname, "public")
+  )
+);
+
+/* =========================
+   ODA BİLGİSİ
+========================= */
+
+app.get(
+  "/api/room/:code",
+  (req, res) => {
+    const code = cleanText(
+      req.params.code,
+      6
+    );
+
+    const room = rooms[code];
+
+    if (!room) {
+      return res.status(404).json({
+        ok: false,
+        error: "Oda bulunamadı."
+      });
+    }
+
+    return res.json({
+      ok: true,
+      room: publicRoom(code)
+    });
+  }
+);
+
+/* =========================
+   SOCKET.IO
+========================= */
 
 io.on("connection", (socket) => {
-  socket.on("createRoom", ({ name, token } = {}, callback) => {
-    const roomCode = randomRoomCode();
 
-    const playerId = crypto.randomUUID();
-    const playerToken = token || createPlayerToken();
+  console.log(
+    "🔵 Oyuncu bağlandı:",
+    socket.id
+  );
 
-    rooms[roomCode] = {
-      createdAt: Date.now(),
+  /* =========================
+     ODA OLUŞTUR
+  ========================= */
 
-      hearts: 0,
-      xp: 0,
-      hugs: 0,
+  socket.on(
+    "createRoom",
+    (data = {}, callback) => {
 
-      chestOpened: false,
+      try {
 
-      memories: [],
-      messages: [],
-      achievements: [],
+        const name = cleanText(
+          data.name || "Oyuncu 1",
+          30
+        );
 
-      players: {}
-    };
+        const roomCode =
+          randomRoomCode();
 
-    rooms[roomCode].players[playerId] = {
-      id: playerId,
-      token: playerToken,
-      socketId: socket.id,
-      name: cleanText(name || "Oyuncu 1", 30),
-      x: 250,
-      y: 250,
-      online: true,
-      lastSeen: Date.now()
-    };
+        const playerId =
+          crypto.randomUUID();
 
-    socket.join(roomCode);
+        const playerToken =
+          createPlayerToken();
 
-    socket.roomCode = roomCode;
-    socket.playerId = playerId;
-    socket.playerToken = playerToken;
+        rooms[roomCode] = {
+          createdAt: Date.now(),
 
-    saveRooms();
+          hearts: 0,
+          xp: 0,
+          hugs: 0,
 
-    callback?.({
-      ok: true,
-      roomCode,
-      playerId,
-      token: playerToken,
-      state: publicRoom(roomCode)
-    });
+          chestOpened: false,
 
-    emitRoom(roomCode);
-  });
+          memories: [],
+          messages: [],
+          achievements: [],
+
+          players: {}
+        };
+
+        rooms[roomCode].players[
+          playerId
+        ] = {
+          id: playerId,
+          token: playerToken,
+          socketId: socket.id,
+
+          name,
+
+          x: 250,
+          y: 250,
+
+          online: true,
+          lastSeen: Date.now()
+        };
+
+        socket.join(roomCode);
+
+        socket.roomCode =
+          roomCode;
+
+        socket.playerId =
+          playerId;
+
+        socket.playerToken =
+          playerToken;
+
+        saveRooms();
+
+        const state =
+          publicRoom(roomCode);
+
+        callback?.({
+          ok: true,
+
+          roomCode,
+          playerId,
+          token: playerToken,
+
+          state
+        });
+
+        emitRoom(roomCode);
+
+        console.log(
+          "💙 Oda oluşturuldu:",
+          roomCode
+        );
+
+      } catch (error) {
+
+        console.error(
+          "createRoom hatası:",
+          error
+        );
+
+        callback?.({
+          ok: false,
+          error:
+            "Oda oluşturulurken sunucu hatası oluştu."
+        });
+      }
+    }
+  );
+
+  /* =========================
+     ODAYA KATIL
+  ========================= */
 
   socket.on(
     "joinRoom",
-    ({ roomCode, name, token } = {}, callback) => {
-      roomCode = cleanText(roomCode, 6);
+    (data = {}, callback) => {
 
-      const room = rooms[roomCode];
+      try {
 
-      if (!room) {
+        const roomCode =
+          cleanText(
+            data.roomCode,
+            6
+          );
+
+        const name =
+          cleanText(
+            data.name ||
+              "Oyuncu 2",
+            30
+          );
+
+        const token =
+          cleanText(
+            data.token || "",
+            100
+          );
+
+        const room =
+          rooms[roomCode];
+
+        if (!room) {
+          return callback?.({
+            ok: false,
+            error:
+              "Bu oda bulunamadı."
+          });
+        }
+
+        let playerId = null;
+
+        /* Eski oyuncuyu bul */
+        if (token) {
+
+          for (
+            const id of Object.keys(
+              room.players
+            )
+          ) {
+
+            if (
+              room.players[id]
+                .token === token
+            ) {
+
+              playerId = id;
+
+              break;
+            }
+          }
+        }
+
+        /* Yeni oyuncu */
+        if (!playerId) {
+
+          const onlinePlayers =
+            Object.values(
+              room.players
+            ).filter(
+              (player) =>
+                player.online
+            );
+
+          if (
+            onlinePlayers.length >= 2
+          ) {
+
+            return callback?.({
+              ok: false,
+              error:
+                "Oda dolu. En fazla 2 kişi olabilir."
+            });
+          }
+
+          playerId =
+            crypto.randomUUID();
+
+          room.players[
+            playerId
+          ] = {
+
+            id: playerId,
+
+            token:
+              createPlayerToken(),
+
+            socketId:
+              socket.id,
+
+            name,
+
+            x: 350,
+            y: 250,
+
+            online: true,
+            lastSeen:
+              Date.now()
+          };
+
+        } else {
+
+          /* Eski oyuncu yeniden bağlandı */
+
+          room.players[
+            playerId
+          ].socketId =
+            socket.id;
+
+          room.players[
+            playerId
+          ].online = true;
+
+          room.players[
+            playerId
+          ].lastSeen =
+            Date.now();
+
+          if (name) {
+
+            room.players[
+              playerId
+            ].name = name;
+          }
+        }
+
+        socket.join(roomCode);
+
+        socket.roomCode =
+          roomCode;
+
+        socket.playerId =
+          playerId;
+
+        socket.playerToken =
+          room.players[
+            playerId
+          ].token;
+
+        saveRooms();
+
+        callback?.({
+          ok: true,
+
+          roomCode,
+
+          playerId,
+
+          token:
+            socket.playerToken,
+
+          state:
+            publicRoom(
+              roomCode
+            )
+        });
+
+        emitRoom(roomCode);
+
+        console.log(
+          "👤 Oyuncu odaya girdi:",
+          roomCode
+        );
+
+      } catch (error) {
+
+        console.error(
+          "joinRoom hatası:",
+          error
+        );
+
+        callback?.({
+          ok: false,
+          error:
+            "Odaya katılırken sunucu hatası oluştu."
+        });
+      }
+    }
+  );
+
+  /* =========================
+     YENİDEN BAĞLAN
+  ========================= */
+
+  socket.on(
+    "rejoinRoom",
+    (data = {}, callback) => {
+
+      const roomCode =
+        cleanText(
+          data.roomCode,
+          6
+        );
+
+      const token =
+        cleanText(
+          data.token,
+          100
+        );
+
+      if (!roomCode || !token) {
+
         return callback?.({
           ok: false,
-          error: "Bu oda bulunamadı."
+          error:
+            "Odaya yeniden bağlanılamadı."
+        });
+      }
+
+      const room =
+        rooms[roomCode];
+
+      if (!room) {
+
+        return callback?.({
+          ok: false,
+          error:
+            "Oda bulunamadı."
         });
       }
 
       let playerId = null;
 
-      if (token) {
-        for (const id of Object.keys(room.players)) {
-          if (room.players[id].token === token) {
-            playerId = id;
-            break;
-          }
+      for (
+        const id of Object.keys(
+          room.players
+        )
+      ) {
+
+        if (
+          room.players[id].token ===
+          token
+        ) {
+
+          playerId = id;
+
+          break;
         }
       }
 
       if (!playerId) {
-        const onlinePlayers = Object.values(room.players)
-          .filter((p) => p.online);
 
-        if (onlinePlayers.length >= 2) {
-          return callback?.({
-            ok: false,
-            error: "Oda dolu. En fazla 2 kişi olabilir."
-          });
-        }
-
-        playerId = crypto.randomUUID();
-
-        room.players[playerId] = {
-          id: playerId,
-          token: createPlayerToken(),
-          socketId: socket.id,
-          name: cleanText(name || "Oyuncu 2", 30),
-          x: 350,
-          y: 250,
-          online: true,
-          lastSeen: Date.now()
-        };
-      } else {
-        room.players[playerId].socketId = socket.id;
-        room.players[playerId].online = true;
-        room.players[playerId].lastSeen = Date.now();
-
-        if (name) {
-          room.players[playerId].name = cleanText(name, 30);
-        }
+        return callback?.({
+          ok: false,
+          error:
+            "Oyuncu oturumu bulunamadı."
+        });
       }
+
+      const player =
+        room.players[
+          playerId
+        ];
+
+      player.socketId =
+        socket.id;
+
+      player.online = true;
+      player.lastSeen =
+        Date.now();
 
       socket.join(roomCode);
 
-      socket.roomCode = roomCode;
-      socket.playerId = playerId;
-      socket.playerToken = room.players[playerId].token;
+      socket.roomCode =
+        roomCode;
+
+      socket.playerId =
+        playerId;
+
+      socket.playerToken =
+        token;
 
       saveRooms();
 
       callback?.({
         ok: true,
+
         roomCode,
+
         playerId,
-        token: room.players[playerId].token,
-        state: publicRoom(roomCode)
+
+        token,
+
+        state:
+          publicRoom(
+            roomCode
+          )
       });
 
       emitRoom(roomCode);
     }
   );
 
-  socket.on("rejoinRoom", ({ roomCode, token } = {}, callback) => {
-    roomCode = cleanText(roomCode, 6);
+  /* =========================
+     HAREKET
+  ========================= */
 
-    const room = rooms[roomCode];
+  socket.on(
+    "position",
+    (data = {}) => {
 
-    if (!room || !token) {
-      return callback?.({
-        ok: false,
-        error: "Odaya yeniden bağlanılamadı."
-      });
-    }
-
-    let playerId = null;
-
-    for (const id of Object.keys(room.players)) {
-      if (room.players[id].token === token) {
-        playerId = id;
-        break;
+      if (
+        !socket.roomCode ||
+        !socket.playerId
+      ) {
+        return;
       }
+
+      const room =
+        rooms[
+          socket.roomCode
+        ];
+
+      if (!room) {
+        return;
+      }
+
+      const player =
+        room.players[
+          socket.playerId
+        ];
+
+      if (!player) {
+        return;
+      }
+
+      const x =
+        Number(data.x);
+
+      const y =
+        Number(data.y);
+
+      if (Number.isFinite(x)) {
+
+        player.x =
+          Math.max(
+            20,
+            Math.min(
+              980,
+              x
+            )
+          );
+      }
+
+      if (Number.isFinite(y)) {
+
+        player.y =
+          Math.max(
+            20,
+            Math.min(
+              580,
+              y
+            )
+          );
+      }
+
+      player.lastSeen =
+        Date.now();
+
+      socket
+        .to(socket.roomCode)
+        .emit(
+          "position",
+          {
+            playerId:
+              socket.playerId,
+
+            x: player.x,
+            y: player.y
+          }
+        );
     }
+  );
 
-    if (!playerId) {
-      return callback?.({
-        ok: false,
-        error: "Oyuncu oturumu bulunamadı."
-      });
-    }
+  /* =========================
+     KALP
+  ========================= */
 
-    room.players[playerId].socketId = socket.id;
-    room.players[playerId].online = true;
-    room.players[playerId].lastSeen = Date.now();
+  socket.on(
+    "heart",
+    () => {
 
-    socket.join(roomCode);
+      if (!socket.roomCode) {
+        return;
+      }
 
-    socket.roomCode = roomCode;
-    socket.playerId = playerId;
-    socket.playerToken = token;
+      const room =
+        rooms[
+          socket.roomCode
+        ];
 
-    saveRooms();
+      if (!room) {
+        return;
+      }
 
-    callback?.({
-      ok: true,
-      roomCode,
-      playerId,
-      token,
-      state: publicRoom(roomCode)
-    });
+      room.hearts =
+        (room.hearts || 0) + 1;
 
-    emitRoom(roomCode);
-  });
-
-  socket.on("position", ({ x, y } = {}) => {
-    if (!socket.roomCode || !socket.playerId) return;
-
-    const room = rooms[socket.roomCode];
-    const player = room?.players[socket.playerId];
-
-    if (!player) return;
-
-    player.x = Math.max(
-      20,
-      Math.min(980, Number(x) || player.x)
-    );
-
-    player.y = Math.max(
-      20,
-      Math.min(580, Number(y) || player.y)
-    );
-
-    player.lastSeen = Date.now();
-
-    socket.to(socket.roomCode).emit("position", {
-      playerId: socket.playerId,
-      x: player.x,
-      y: player.y
-    });
-  });
-
-  socket.on("heart", () => {
-    if (!socket.roomCode) return;
-
-    const room = rooms[socket.roomCode];
-    if (!room) return;
-
-    room.hearts += 1;
-    room.xp += 2;
-
-    saveRooms();
-
-    io.to(socket.roomCode).emit("heart", {
-      from: socket.playerId,
-      hearts: room.hearts,
-      xp: room.xp
-    });
-
-    emitRoom(socket.roomCode);
-  });
-
-  socket.on("hug", () => {
-    if (!socket.roomCode) return;
-
-    const room = rooms[socket.roomCode];
-    if (!room) return;
-
-    room.hugs += 1;
-    room.hearts += 5;
-    room.xp += 5;
-
-    saveRooms();
-
-    io.to(socket.roomCode).emit("hug", {
-      from: socket.playerId,
-      hugs: room.hugs,
-      hearts: room.hearts,
-      xp: room.xp
-    });
-
-    emitRoom(socket.roomCode);
-  });
-
-  socket.on("message", ({ text: messageText } = {}) => {
-    if (!socket.roomCode) return;
-
-    const room = rooms[socket.roomCode];
-    if (!room) return;
-
-    const text = cleanText(messageText, 300);
-
-    if (!text) return;
-
-    const message = {
-      id: crypto.randomUUID(),
-      from: socket.playerId,
-      text,
-      time: Date.now()
-    };
-
-    room.messages.push(message);
-
-    if (room.messages.length > 100) {
-      room.messages.shift();
-    }
-
-    room.xp += 1;
-
-    saveRooms();
-
-    io.to(socket.roomCode).emit("message", message);
-
-    emitRoom(socket.roomCode);
-  });
-
-  socket.on("memory", ({ text: memoryText } = {}) => {
-    if (!socket.roomCode) return;
-
-    const room = rooms[socket.roomCode];
-    if (!room) return;
-
-    const text = cleanText(memoryText, 500);
-
-    if (!text) return;
-
-    const memory = {
-      id: crypto.randomUUID(),
-      from: socket.playerId,
-      text,
-      time: Date.now()
-    };
-
-    room.memories.push(memory);
-
-    if (room.memories.length > 100) {
-      room.memories.shift();
-    }
-
-    room.hearts += 10;
-    room.xp += 10;
-
-    saveRooms();
-
-    io.to(socket.roomCode).emit("memory", memory);
-
-    emitRoom(socket.roomCode);
-  });
-
-  socket.on("openChest", () => {
-    if (!socket.roomCode) return;
-
-    const room = rooms[socket.roomCode];
-
-    if (!room || room.chestOpened) {
-      return;
-    }
-
-    room.chestOpened = true;
-    room.hearts += 50;
-    room.xp += 50;
-
-    saveRooms();
-
-    io.to(socket.roomCode).emit("chestOpened", {
-      hearts: room.hearts,
-      xp: room.xp
-    });
-
-    emitRoom(socket.roomCode);
-  });
-
-  socket.on("achievement", ({ id } = {}) => {
-    if (!socket.roomCode || !id) return;
-
-    const room = rooms[socket.roomCode];
-
-    if (!room) return;
-
-    id = cleanText(id, 50);
-
-    if (!room.achievements.includes(id)) {
-      room.achievements.push(id);
-      room.xp += 20;
+      room.xp =
+        (room.xp || 0) + 2;
 
       saveRooms();
 
-      io.to(socket.roomCode).emit("achievement", {
-        id,
-        xp: room.xp
-      });
+      io.to(
+        socket.roomCode
+      ).emit(
+        "heart",
+        {
+          from:
+            socket.playerId,
 
-      emitRoom(socket.roomCode);
+          hearts:
+            room.hearts,
+
+          xp:
+            room.xp
+        }
+      );
+
+      emitRoom(
+        socket.roomCode
+      );
     }
-  });
+  );
 
-  socket.on("gameScore", ({ game, score } = {}) => {
-    if (!socket.roomCode) return;
+  /* =========================
+     SARILMA
+  ========================= */
 
-    const room = rooms[socket.roomCode];
+  socket.on(
+    "hug",
+    () => {
 
-    if (!room) return;
+      if (!socket.roomCode) {
+        return;
+      }
 
-    game = cleanText(game, 30);
+      const room =
+        rooms[
+          socket.roomCode
+        ];
 
-    score = Math.max(
-      0,
-      Math.min(100000, Math.floor(Number(score) || 0))
-    );
+      if (!room) {
+        return;
+      }
 
-    const reward = Math.min(score, 100);
+      room.hugs =
+        (room.hugs || 0) + 1;
 
-    room.hearts += reward;
-    room.xp += reward;
+      room.hearts =
+        (room.hearts || 0) + 5;
 
-    saveRooms();
+      room.xp =
+        (room.xp || 0) + 5;
 
-    io.to(socket.roomCode).emit("gameScore", {
-      from: socket.playerId,
-      game,
-      score,
-      hearts: room.hearts,
-      xp: room.xp
-    });
+      saveRooms();
 
-    emitRoom(socket.roomCode);
-  });
+      io.to(
+        socket.roomCode
+      ).emit(
+        "hug",
+        {
+          from:
+            socket.playerId,
 
-  socket.on("requestState", () => {
-    if (!socket.roomCode) return;
+          hugs:
+            room.hugs,
 
-    socket.emit(
-      "state",
-      publicRoom(socket.roomCode)
-    );
-  });
+          hearts:
+            room.hearts,
 
-  socket.on("updateProfile", ({ name } = {}) => {
-    if (!socket.roomCode || !socket.playerId) return;
+          xp:
+            room.xp
+        }
+      );
 
-    const room = rooms[socket.roomCode];
-    const player = room?.players[socket.playerId];
-
-    if (!player) return;
-
-    player.name = cleanText(name || player.name, 30);
-
-    saveRooms();
-
-    emitRoom(socket.roomCode);
-  });
-
-  socket.on("disconnect", () => {
-    if (!socket.roomCode || !socket.playerId) {
-      return;
+      emitRoom(
+        socket.roomCode
+      );
     }
+  );
 
-    const room = rooms[socket.roomCode];
+  /* =========================
+     MESAJ
+  ========================= */
 
-    if (!room) return;
+  socket.on(
+    "message",
+    (data = {}) => {
 
-    const player = room.players[socket.playerId];
+      if (!socket.roomCode) {
+        return;
+      }
 
-    if (player) {
-      player.online = false;
-      player.lastSeen = Date.now();
-      player.socketId = null;
+      const room =
+        rooms[
+          socket.roomCode
+        ];
+
+      if (!room) {
+        return;
+      }
+
+      const messageText =
+        cleanText(
+          data.text,
+          300
+        );
+
+      if (!messageText) {
+        return;
+      }
+
+      const message = {
+        id:
+          crypto.randomUUID(),
+
+        from:
+          socket.playerId,
+
+        text:
+          messageText,
+
+        time:
+          Date.now()
+      };
+
+      room.messages.push(
+        message
+      );
+
+      if (
+        room.messages.length >
+        100
+      ) {
+        room.messages.shift();
+      }
+
+      room.xp =
+        (room.xp || 0) + 1;
+
+      saveRooms();
+
+      io.to(
+        socket.roomCode
+      ).emit(
+        "message",
+        message
+      );
+
+      emitRoom(
+        socket.roomCode
+      );
     }
+  );
 
-    saveRooms();
+  /* =========================
+     ANILAR
+  ========================= */
 
-    emitRoom(socket.roomCode);
-  });
-});
+  socket.on(
+    "memory",
+    (data = {}) => {
 
-setInterval(() => {
-  const now = Date.now();
-  let changed = false;
+      if (!socket.roomCode) {
+        return;
+      }
 
-  for (const [code, room] of Object.entries(rooms)) {
-    const players = Object.values(room.players);
+      const room =
+        rooms[
+          socket.roomCode
+        ];
 
-    const online = players.some((p) => p.online);
+      if (!room) {
+        return;
+      }
 
-    if (
-      !online &&
-      now - room.createdAt > 1000 * 60 * 60 * 24 * 30
-    ) {
-      delete rooms[code];
-      changed = true;
+      const text =
+        cleanText(
+          data.text,
+          500
+        );
+
+      if (!text) {
+        return;
+      }
+
+      const memory = {
+        id:
+          crypto.randomUUID(),
+
+        from:
+          socket.playerId,
+
+        text,
+
+        time:
+          Date.now()
+      };
+
+      room.memories.push(
+        memory
+      );
+
+      if (
+        room.memories.length >
+        100
+      ) {
+        room.memories.shift();
+      }
+
+      room.hearts =
+        (room.hearts || 0) + 10;
+
+      room.xp =
+        (room.xp || 0) + 10;
+
+      saveRooms();
+
+      io.to(
+        socket.roomCode
+      ).emit(
+        "memory",
+        memory
+      );
+
+      emitRoom(
+        socket.roomCode
+      );
     }
-  }
+  );
 
-  if (changed) {
-    saveRooms();
-  }
-}, 1000 * 60 * 60);
+  /* =========================
+     KALP SANDIĞI
+  ========================= */
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+  socket.on(
+    "openChest",
+    () => {
 
-server.listen(PORT, () => {
-  console.log(
-    `💙 Blue Hearts server çalışıyor: http://localhost:${PORT}`
+      if (!socket.roomCode) {
+        return;
+      }
+
+      const room =
+        rooms[
+          socket.roomCode
+        ];
+
+      if (!room) {
+        return;
+      }
+
+      if (room.chestOpened) {
+        return;
+      }
+
+      room.chestOpened =
+        true;
+
+      room.hearts =
+        (room.hearts || 0) + 50;
+
+      room.xp =
+        (room.xp || 0) + 50;
+
+      saveRooms();
+
+      io.to(
+        socket.roomCode
+      ).emit(
+        "chestOpened",
+        {
+          hearts:
+            room.hearts,
+
+          xp:
+            room.xp
+        }
+      );
+
+      emitRoom(
+        socket.roomCode
+      );
+    }
+  );
+
+  /* =========================
+     BAŞARIM
+  ========================= */
+
+  socket.on(
+    "achievement",
+    (data = {}) => {
+
+      if (
+        !socket.roomCode ||
+        !data.id
+      ) {
+        return;
+      }
+
+      const room =
+        rooms[
+          socket.roomCode
+        ];
+
+      if (!room) {
+        return;
+      }
+
+      const id =
+        cleanText(
+          data.id,
+          50
+        );
+
+      if (!id) {
+        return;
+      }
+
+      if (
+        !room.achievements.includes(
+          id
+        )
+      ) {
+
+        room.achievements.push(
+          id
+        );
+
+        room.xp =
+          (room.xp || 0) + 20;
+
+        saveRooms();
+
+        io.to(
+          socket.roomCode
+        ).emit(
+          "achievement",
+          {
+            id,
+            xp:
+              room.xp
+          }
+        );
+
+        emitRoom(
+          socket.roomCode
+        );
+      }
+    }
+  );
+
+  /* =========================
+     MİNİ OYUN SKORU
+  ========================= */
+
+  socket.on(
+    "gameScore",
+    (data = {}) => {
+
+      if (!socket.roomCode) {
+        return;
+      }
+
+      const room =
+        rooms[
+          socket.roomCode
+        ];
+
+      if (!room) {
+        return;
+      }
+
+      const game =
+        cleanText(
+          data.game,
+          30
+        );
+
+      let score =
+        Math.floor(
+          Number(data.score)
+        );
+
+      if (
+        !Number.isFinite(score)
+      ) {
+        score = 0;
+      }
+
+      score =
+        Math.max(
+          0,
+          Math.min(
+            100000,
+            score
+          )
+        );
+
+      const reward =
+        Math.min(
+          score,
+          100
+        );
+
+      room.hearts =
+        (room.hearts || 0) +
+        reward;
+
+      room.xp =
+        (room.xp || 0) +
+        reward;
+
+      saveRooms();
+
+      io.to(
+        socket.roomCode
+      ).emit(
+        "gameScore",
+        {
+          from:
+            socket.playerId,
+
+          game,
+
+          score,
+
+          hearts:
+            room.hearts,
+
+          xp:
+            room.xp
+        }
+      );
+
+      emitRoom(
+        socket.roomCode
+      );
+    }
+  );
+
+  /* =========================
+     DURUM İSTE
+  ========================= */
+
+  socket.on(
+    "requestState",
+    () => {
+
+      if (!socket.roomCode) {
+        return;
+      }
+
+      const state =
+        publicRoom(
+          socket.roomCode
+        );
+
+      if (state) {
+        socket.emit(
+          "state",
+          state
+        );
+      }
+    }
+  );
+
+  /* =========================
+     PROFİL GÜNCELLE
+  ========================= */
+
+  socket.on(
+    "updateProfile",
+    (data = {}) => {
+
+      if (
+        !socket.roomCode ||
+        !socket.playerId
+      ) {
+        return;
+      }
+
+      const room =
+        rooms[
+          socket.roomCode
+        ];
+
+      if (!room) {
+        return;
+      }
+
+      const player =
+        room.players[
+          socket.playerId
+        ];
+
+      if (!player) {
+        return;
+      }
+
+      const name =
+        cleanText(
+          data.name,
+          30
+        );
+
+      if (name) {
+        player.name =
+          name;
+      }
+
+      saveRooms();
+
+      emitRoom(
+        socket.roomCode
+      );
+    }
+  );
+
+  /* =========================
+     BAĞLANTI KESİLDİ
+  ========================= */
+
+  socket.on(
+    "disconnect",
+    () => {
+
+      console.log(
+        "🔴 Oyuncu ayrıldı:",
+        socket.id
+      );
+
+      if (
+        !socket.roomCode ||
+        !socket.playerId
+      ) {
+        return;
+      }
+
+      const room =
+        rooms[
+          socket.roomCode
+        ];
+
+      if (!room) {
+        return;
+      }
+
+      const player =
+        room.players[
+          socket.playerId
+        ];
+
+      if (!player) {
+        return;
+      }
+
+      player.online =
+        false;
+
+      player.lastSeen =
+        Date.now();
+
+      player.socketId =
+        null;
+
+      saveRooms();
+
+      emitRoom(
+        socket.roomCode
+      );
+    }
   );
 });
+
+/* =========================
+   ESKİ ODALARI TEMİZLE
+========================= */
+
+setInterval(
+  () => {
+
+    const now =
+      Date.now();
+
+    let changed =
+      false;
+
+    for (
+      const [code, room]
+      of Object.entries(rooms)
+    ) {
+
+      const players =
+        Object.values(
+          room.players || {}
+        );
+
+      const online =
+        players.some(
+          (player) =>
+            player.online
+        );
+
+      if (
+        !online &&
+        now -
+          room.createdAt >
+          1000 *
+          60 *
+          60 *
+          24 *
+          30
+      ) {
+
+        delete rooms[code];
+
+        changed =
+          true;
+      }
+    }
+
+    if (changed) {
+      saveRooms();
+    }
+
+  },
+  1000 *
+  60 *
+  60
+);
+
+/* ==========
