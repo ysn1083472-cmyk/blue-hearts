@@ -14,7 +14,7 @@ html,body{
 button,input,textarea{font:inherit}
 button{
  border:0;border-radius:14px;padding:13px 16px;
- background:#1675d1;color:#fff;font-weight:bold
+ background:#1675d1;color:#fff;font-weight:bold;cursor:pointer
 }
 button:active{transform:scale(.96)}
 input,textarea{
@@ -79,7 +79,8 @@ textarea{resize:none}
  position:absolute;width:68px;height:68px;border-radius:50%;
  background:#145b99;border:3px solid #7ed4ff;
  display:flex;align-items:center;justify-content:center;
- font-size:31px;z-index:10;transition:left .08s linear,top .08s linear
+ font-size:31px;z-index:10;
+ transition:left .08s linear,top .08s linear
 }
 .actor img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .actor span{
@@ -89,9 +90,11 @@ textarea{resize:none}
 #partner{border-color:#ff9dca}
 
 #interaction{
- position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);
+ position:absolute;left:50%;top:42%;
+ transform:translate(-50%,-50%);
  width:min(300px,82%);padding:17px;text-align:center;
- background:#08254aed;border:1px solid #3973a5;border-radius:20px;z-index:4
+ background:#08254aed;border:1px solid #3973a5;
+ border-radius:20px;z-index:4
 }
 #interaction h3{margin:0 0 7px;color:#83d4ff}
 
@@ -122,7 +125,10 @@ textarea{resize:none}
  height:300px;overflow:auto;background:#04152c;
  border:1px solid #21476e;border-radius:15px;padding:10px
 }
-.msg{padding:8px 10px;margin:6px 0;background:#102f53;border-radius:12px;max-width:85%}
+.msg{
+ padding:8px 10px;margin:6px 0;background:#102f53;
+ border-radius:12px;max-width:85%
+}
 .msg.me{margin-left:auto;background:#155c98}
 .who{font-size:11px;color:#8bcfff;margin-bottom:3px}
 
@@ -160,10 +166,23 @@ textarea{resize:none}
  to{transform:translateY(-160px) scale(1.5);opacity:0}
 }
 
+.badge{
+ display:inline-block;padding:7px 10px;margin:4px;
+ background:#123c68;border:1px solid #3975a8;
+ border-radius:12px;font-size:13px
+}
+
+.task{
+ background:#0b2b4d;padding:12px;border-radius:13px;margin:8px 0
+}
+.task.done{border:1px solid #4bc9ff}
+
 #toast{
- position:fixed;left:50%;bottom:20px;transform:translateX(-50%);
- z-index:1000;background:#0d3159;border:1px solid #4282b8;
- padding:12px 18px;border-radius:14px;display:none;
+ position:fixed;left:50%;bottom:20px;
+ transform:translateX(-50%);
+ z-index:1000;background:#0d3159;
+ border:1px solid #4282b8;padding:12px 18px;
+ border-radius:14px;display:none;
  max-width:90%;text-align:center
 }
 
@@ -179,6 +198,8 @@ textarea{resize:none}
 
 <body>
 
+<!-- ================= MENU ================= -->
+
 <section id="menu" class="screen active">
 <div class="wrap">
 
@@ -188,6 +209,7 @@ textarea{resize:none}
 <div class="card">
 
 <div class="avatar" id="myAvatar">💙</div>
+
 <div class="spacer"></div>
 
 <input id="myName" maxlength="30" placeholder="Senin adın">
@@ -201,7 +223,9 @@ textarea{resize:none}
 
 <div class="spacer"></div>
 
-<button style="width:100%" onclick="saveProfile()">💾 Profili Kaydet</button>
+<button style="width:100%" onclick="saveProfile()">
+💾 Profili Kaydet
+</button>
 
 <div class="spacer"></div>
 
@@ -218,90 +242,176 @@ textarea{resize:none}
 
 <div class="spacer"></div>
 
-<div class="small center">Online mod için internet bağlantısı gerekir.</div>
+<div class="small center">
+Online mod için internet bağlantısı gerekir.
+</div>
 
 </div>
 
 <div class="card">
 <h3>📊 İstatistikler</h3>
+
 <div class="statbar">
 <div class="stat"><b id="menuHearts">0</b>Kalp</div>
 <div class="stat"><b id="menuXP">0</b>XP</div>
 <div class="stat"><b id="menuHugs">0</b>Sarılma</div>
 <div class="stat"><b id="menuMem">0</b>Anı</div>
 </div>
+
 </div>
 
 </div>
 </section>
 
+
+<!-- ================= GAME ================= -->
 
 <section id="game" class="screen">
 
 <div id="world">
 
 <div id="topbar">
-<div class="pill">💙 <span id="hearts">0</span></div>
-<div class="pill">⭐ <span id="xp">0</span></div>
-<div class="pill">🤗 <span id="hugs">0</span></div>
-<div class="pill">Oda: <span id="roomText">-</span></div>
-<div class="pill" id="status">🟡 Çevrimdışı</div>
-<button onclick="openPanel('menuPanel')">☰</button>
+
+<div class="pill">
+💙 <span id="hearts">0</span>
 </div>
+
+<div class="pill">
+⭐ <span id="xp">0</span>
+</div>
+
+<div class="pill">
+🤗 <span id="hugs">0</span>
+</div>
+
+<div class="pill">
+Oda: <span id="roomText">-</span>
+</div>
+
+<div class="pill" id="status">
+🟡 Çevrimdışı
+</div>
+
+<button onclick="openPanel('menuPanel')">☰</button>
+
+</div>
+
 
 <div id="interaction">
+
 <h3>💙 Blue Hearts</h3>
-<div id="interactionText">Birlikte güzel vakit geçir.</div>
+
+<div id="interactionText">
+Birlikte güzel vakit geçir.
 </div>
+
+</div>
+
 
 <div id="me" class="actor" style="left:120px;top:250px">
+
 💙
+
 <span id="meName">Sen</span>
+
 </div>
+
 
 <div id="partner" class="actor" style="left:350px;top:250px">
+
 💗
+
 <span id="partnerName">Bekleniyor...</span>
+
 </div>
 
+
 <div id="controls">
+
 <div id="joystick">
 <div id="stick"></div>
 </div>
 
 <div class="actions">
-<button onclick="sendHeart()">💙<br>Kalp</button>
-<button onclick="sendHug()">🤗<br>Sarıl</button>
-<button onclick="openPanel('chatPanel')">💬<br>Sohbet</button>
-<button onclick="openPanel('gamePanel')">🎮<br>Oyun</button>
+
+<button onclick="sendHeart()">
+💙<br>Kalp
+</button>
+
+<button onclick="sendHug()">
+🤗<br>Sarıl
+</button>
+
+<button onclick="openPanel('chatPanel')">
+💬<br>Sohbet
+</button>
+
+<button onclick="openPanel('gamePanel')">
+🎮<br>Oyun
+</button>
+
 </div>
+
 </div>
 
 </div>
 </section>
 
 
+<!-- ================= PANEL ================= -->
+
 <div id="panel">
+
 <div id="panelBox">
 
+
+<!-- MENU PANEL -->
+
 <div id="menuPanel" class="card panelContent hidden">
+
 <h2>☰ Menü</h2>
 
 <div class="grid">
-<button onclick="openPanel('chatPanel')">💬 Sohbet</button>
-<button onclick="openPanel('memoryPanel')">📖 Anılar</button>
-<button onclick="openPanel('taskPanel')">📅 Günlük</button>
-<button onclick="openPanel('gamePanel')">🎮 Mini Oyunlar</button>
-<button onclick="openPanel('profilePanel')">👤 Profil</button>
-<button onclick="openPanel('settingsPanel')">⚙️ Ayarlar</button>
+
+<button onclick="openPanel('chatPanel')">
+💬 Sohbet
+</button>
+
+<button onclick="openPanel('memoryPanel')">
+📖 Anılar
+</button>
+
+<button onclick="openPanel('taskPanel')">
+📅 Günlük
+</button>
+
+<button onclick="openPanel('gamePanel')">
+🎮 Mini Oyunlar
+</button>
+
+<button onclick="openPanel('profilePanel')">
+👤 Profil
+</button>
+
+<button onclick="openPanel('settingsPanel')">
+⚙️ Ayarlar
+</button>
+
 </div>
 
 <div class="spacer"></div>
-<button onclick="closePanel()" style="width:100%;background:#31506f">Kapat</button>
+
+<button onclick="closePanel()" style="width:100%;background:#31506f">
+Kapat
+</button>
+
 </div>
 
 
+<!-- CHAT -->
+
 <div id="chatPanel" class="card panelContent hidden">
+
 <h2>💬 Kalp Sohbeti</h2>
 
 <div id="messages" class="chatbox"></div>
@@ -309,115 +419,232 @@ textarea{resize:none}
 <div class="spacer"></div>
 
 <div class="row">
-<input id="messageInput" maxlength="300" placeholder="Bir mesaj yaz...">
-<button onclick="sendMessage()">Gönder</button>
+
+<input id="messageInput"
+maxlength="300"
+placeholder="Bir mesaj yaz...">
+
+<button onclick="sendMessage()">
+Gönder
+</button>
+
 </div>
 
 <div class="spacer"></div>
 
 <div class="grid">
-<button onclick="quickMessage('💙 Seni düşündüm')">💙 Seni düşündüm</button>
-<button onclick="quickMessage('😊 Nasılsın?')">😊 Nasılsın?</button>
-<button onclick="quickMessage('🤗 Sarılalım')">🤗 Sarılalım</button>
-<button onclick="quickMessage('⭐ İyi ki varsın')">⭐ İyi ki varsın</button>
+
+<button onclick="quickMessage('💙 Seni düşündüm')">
+💙 Seni düşündüm
+</button>
+
+<button onclick="quickMessage('😊 Nasılsın?')">
+😊 Nasılsın?
+</button>
+
+<button onclick="quickMessage('🤗 Sarılalım')">
+🤗 Sarılalım
+</button>
+
+<button onclick="quickMessage('⭐ İyi ki varsın')">
+⭐ İyi ki varsın
+</button>
+
 </div>
 
 <div class="spacer"></div>
-<button onclick="closePanel()">Kapat</button>
+
+<button onclick="closePanel()">
+Kapat
+</button>
+
 </div>
 
 
+<!-- MEMORIES -->
+
 <div id="memoryPanel" class="card panelContent hidden">
+
 <h2>📖 Anılar</h2>
 
-<textarea id="memoryInput" rows="4" maxlength="500"
+<textarea id="memoryInput"
+rows="4"
+maxlength="500"
 placeholder="Güzel bir anınızı yaz..."></textarea>
 
 <div class="spacer"></div>
-<button onclick="addMemory()">💙 Anıyı Kaydet</button>
+
+<button onclick="addMemory()">
+💙 Anıyı Kaydet
+</button>
 
 <div class="spacer"></div>
+
 <div id="memories"></div>
 
-<button onclick="closePanel()">Kapat</button>
+<button onclick="closePanel()">
+Kapat
+</button>
+
 </div>
 
 
+<!-- TASKS -->
+
 <div id="taskPanel" class="card panelContent hidden">
+
 <h2>📅 Günlük Görevler</h2>
+
 <div id="tasks"></div>
 
 <div class="spacer"></div>
-<button onclick="dailyReward()">🎁 Günlük Ödülü</button>
+
+<button onclick="dailyReward()">
+🎁 Günlük Ödülü
+</button>
 
 <div class="spacer"></div>
+
 <div id="achievements"></div>
 
 <div class="spacer"></div>
-<button onclick="closePanel()">Kapat</button>
+
+<button onclick="closePanel()">
+Kapat
+</button>
+
 </div>
 
 
+<!-- GAMES -->
+
 <div id="gamePanel" class="card panelContent hidden">
+
 <h2>🎮 Mini Oyunlar</h2>
 
 <div class="grid">
-<button onclick="heartCatch()">💙 Kalpleri Yakala</button>
-<button onclick="targetGame()">🎯 Hedef</button>
-<button onclick="quizGame()">❓ Quiz</button>
-<button onclick="memoryGame()">🧠 Hafıza</button>
+
+<button onclick="heartCatch()">
+💙 Kalpleri Yakala
+</button>
+
+<button onclick="targetGame()">
+🎯 Hedef
+</button>
+
+<button onclick="quizGame()">
+❓ Quiz
+</button>
+
+<button onclick="memoryGame()">
+🧠 Hafıza
+</button>
+
 </div>
 
 <div class="spacer"></div>
+
 <div id="miniGameArea"></div>
 
 <div class="spacer"></div>
-<button onclick="closePanel()">Kapat</button>
+
+<button onclick="closePanel()">
+Kapat
+</button>
+
 </div>
 
 
+<!-- PROFILE -->
+
 <div id="profilePanel" class="card panelContent hidden">
+
 <h2>👤 Profil</h2>
 
-<div class="avatar" id="profileAvatar">💙</div>
+<div class="avatar" id="profileAvatar">
+💙
+</div>
 
 <div class="spacer"></div>
 
-<input id="profileName" maxlength="30" placeholder="Adın">
+<input id="profileName"
+maxlength="30"
+placeholder="Adın">
 
 <div class="spacer"></div>
 
 <div class="statbar">
-<div class="stat"><b id="pHearts">0</b>Kalp</div>
-<div class="stat"><b id="pXP">0</b>XP</div>
-<div class="stat"><b id="pHugs">0</b>Sarılma</div>
-<div class="stat"><b id="pMemories">0</b>Anı</div>
+
+<div class="stat">
+<b id="pHearts">0</b>Kalp
+</div>
+
+<div class="stat">
+<b id="pXP">0</b>XP
+</div>
+
+<div class="stat">
+<b id="pHugs">0</b>Sarılma
+</div>
+
+<div class="stat">
+<b id="pMemories">0</b>Anı
+</div>
+
 </div>
 
 <div class="spacer"></div>
-<button onclick="saveProfile()">💾 Kaydet</button>
-<button onclick="closePanel()">Kapat</button>
+
+<button onclick="saveProfile()">
+💾 Kaydet
+</button>
+
+<button onclick="closePanel()">
+Kapat
+</button>
+
 </div>
 
 
+<!-- SETTINGS -->
+
 <div id="settingsPanel" class="card panelContent hidden">
+
 <h2>⚙️ Ayarlar</h2>
 
 <label>🔊 Ses seviyesi</label>
-<input id="volume" type="range" min="0" max="100" value="70">
+
+<input id="volume"
+type="range"
+min="0"
+max="100"
+value="70">
 
 <div class="spacer"></div>
 
 <label style="display:block;background:#12345a;padding:13px;border-radius:12px">
+
 🎵 Müzik dosyası seç
-<input id="musicInput" type="file" accept="audio/*">
+
+<input id="musicInput"
+type="file"
+accept="audio/*">
+
 </label>
 
 <div class="spacer"></div>
 
-<button onclick="toggleMusic()">🎵 Müzik Aç/Kapat</button>
-<button onclick="vibrate()">📳 Titreşim</button>
-<button onclick="fullscreen()">⛶ Tam Ekran</button>
+<button onclick="toggleMusic()">
+🎵 Müzik Aç/Kapat
+</button>
+
+<button onclick="vibrate()">
+📳 Titreşim
+</button>
+
+<button onclick="fullscreen()">
+⛶ Tam Ekran
+</button>
 
 <div class="spacer"></div>
 
@@ -426,35 +653,52 @@ placeholder="Güzel bir anınızı yaz..."></textarea>
 </button>
 
 <div class="spacer"></div>
-<button onclick="closePanel()">Kapat</button>
+
+<button onclick="closePanel()">
+Kapat
+</button>
+
 </div>
 
 </div>
 </div>
 
+
+<!-- JOIN MODAL -->
 
 <div id="joinModal" class="modal">
+
 <div class="modalBox">
+
 <h2>🔑 Odaya Katıl</h2>
 
-<input id="joinCode" maxlength="6" inputmode="numeric"
+<input
+id="joinCode"
+maxlength="6"
+inputmode="numeric"
 placeholder="6 haneli oda kodu">
 
 <div class="spacer"></div>
 
-<button onclick="joinRoom()" style="width:100%">Katıl</button>
+<button onclick="joinRoom()" style="width:100%">
+Katıl
+</button>
 
 <div class="spacer"></div>
 
 <button onclick="hideJoin()" style="width:100%;background:#31506f">
 İptal
 </button>
+
 </div>
+
 </div>
+
 
 <div id="toast"></div>
 
 <audio id="music" loop></audio>
+
 
 <script src="/socket.io/socket.io.js"></script>
 
@@ -462,26 +706,15 @@ placeholder="6 haneli oda kodu">
 "use strict";
 
 /* =========================
-   TEMEL DEĞİŞKENLER
+   DEĞİŞKENLER
 ========================= */
 
 let socket=null;
 let connected=false;
 let offline=false;
+
 let musicURL="";
 let musicPlaying=false;
-
-try{
- if(typeof io==="function"){
-  socket=io({
-   transports:["polling","websocket"],
-   reconnection:true,
-   reconnectionAttempts:10
-  });
- }
-}catch(e){
- console.error("Socket başlatılamadı:",e);
-}
 
 let roomCode=localStorage.getItem("bh_room")||"";
 let playerId=localStorage.getItem("bh_player")||"";
@@ -503,36 +736,103 @@ let state={
  achievements:[]
 };
 
-function $(id){
- return document.getElementById(id);
-}
+let dailyClaimed=localStorage.getItem("bh_daily")===(new Date().toDateString());
 
-function safeUUID(){
- try{
-  if(window.crypto && crypto.randomUUID)
-   return crypto.randomUUID();
- }catch(e){}
- return Date.now().toString(36)+Math.random().toString(36).slice(2);
+
+/* =========================
+   SOCKET
+========================= */
+
+try{
+
+ if(typeof io==="function"){
+
+  socket=io(window.location.origin,{
+   transports:["polling","websocket"],
+   reconnection:true,
+   reconnectionAttempts:20,
+   timeout:10000
+  });
+
+ }
+
+}catch(e){
+
+ console.error("Socket başlatılamadı:",e);
+
 }
 
 
 /* =========================
-   LOCAL KAYIT
+   YARDIMCI
+========================= */
+
+function $(id){
+ return document.getElementById(id);
+}
+
+function toast(text){
+
+ const t=$("toast");
+
+ t.textContent=text;
+ t.style.display="block";
+
+ clearTimeout(window.__toastTimer);
+
+ window.__toastTimer=setTimeout(()=>{
+  t.style.display="none";
+ },2500);
+
+}
+
+function safeUUID(){
+
+ try{
+
+  if(window.crypto && crypto.randomUUID){
+   return crypto.randomUUID();
+  }
+
+ }catch(e){}
+
+ return Date.now().toString(36)+Math.random().toString(36).slice(2);
+
+}
+
+
+/* =========================
+   LOCAL STORAGE
 ========================= */
 
 function loadLocal(){
+
  try{
-  state.memories=JSON.parse(localStorage.getItem("bh_memories")||"[]");
-  state.messages=JSON.parse(localStorage.getItem("bh_messages")||"[]");
-  state.achievements=JSON.parse(localStorage.getItem("bh_achievements")||"[]");
+
+  state.memories=JSON.parse(
+   localStorage.getItem("bh_memories")||"[]"
+  );
+
+  state.messages=JSON.parse(
+   localStorage.getItem("bh_messages")||"[]"
+  );
+
+  state.achievements=JSON.parse(
+   localStorage.getItem("bh_achievements")||"[]"
+  );
+
  }catch(e){
+
   state.memories=[];
   state.messages=[];
   state.achievements=[];
+
  }
+
 }
 
 function saveLocal(){
+
  localStorage.setItem("bh_room",roomCode);
  localStorage.setItem("bh_player",playerId);
  localStorage.setItem("bh_token",playerToken);
@@ -543,29 +843,54 @@ function saveLocal(){
  localStorage.setItem("bh_xp",String(state.xp));
  localStorage.setItem("bh_hugs",String(state.hugs));
 
- localStorage.setItem("bh_memories",JSON.stringify(state.memories));
- localStorage.setItem("bh_messages",JSON.stringify(state.messages));
- localStorage.setItem("bh_achievements",JSON.stringify(state.achievements));
+ localStorage.setItem(
+  "bh_memories",
+  JSON.stringify(state.memories)
+ );
+
+ localStorage.setItem(
+  "bh_messages",
+  JSON.stringify(state.messages)
+ );
+
+ localStorage.setItem(
+  "bh_achievements",
+  JSON.stringify(state.achievements)
+ );
 
  localStorage.setItem("bh_x",String(pos.x));
  localStorage.setItem("bh_y",String(pos.y));
+
 }
 
 loadLocal();
 
 
 /* =========================
-   EKRAN / PANEL
+   EKRAN
 ========================= */
 
 function showScreen(id){
+
  document.querySelectorAll(".screen").forEach(x=>{
   x.classList.remove("active");
  });
- $(id).classList.add("active");
+
+ const el=$(id);
+
+ if(el){
+  el.classList.add("active");
+ }
+
 }
 
+
+/* =========================
+   PANEL
+========================= */
+
 function openPanel(id){
+
  $("panel").classList.add("show");
 
  document.querySelectorAll(".panelContent").forEach(x=>{
@@ -573,6 +898,7 @@ function openPanel(id){
  });
 
  const el=$(id);
+
  if(!el)return;
 
  el.classList.remove("hidden");
@@ -581,31 +907,29 @@ function openPanel(id){
  if(id==="memoryPanel")renderMemories();
  if(id==="taskPanel")renderTasks();
  if(id==="profilePanel")renderProfile();
+
 }
 
 function closePanel(){
+
  $("panel").classList.remove("show");
+
 }
 
 function showJoin(){
+
  $("joinModal").classList.add("show");
+
+ $("joinCode").value="";
+
  $("joinCode").focus();
+
 }
 
 function hideJoin(){
+
  $("joinModal").classList.remove("show");
-}
 
-function toast(text){
- const t=$("toast");
- t.textContent=text;
- t.style.display="block";
-
- clearTimeout(window.__toastTimer);
-
- window.__toastTimer=setTimeout(()=>{
-  t.style.display="none";
- },2500);
 }
 
 
@@ -614,10 +938,11 @@ function toast(text){
 ========================= */
 
 function saveProfile(){
+
  const n=(
-  $("profileName").value ||
-  $("myName").value ||
-  playerName ||
+  $("profileName").value||
+  $("myName").value||
+  playerName||
   "Oyuncu"
  ).trim();
 
@@ -627,52 +952,81 @@ function saveProfile(){
  $("profileName").value=playerName;
 
  saveLocal();
+
  updateUI();
 
  if(connected && socket){
-  socket.emit("updateProfile",{name:playerName});
+
+  socket.emit("updateProfile",{
+   name:playerName
+  });
+
  }
 
  toast("Profil kaydedildi 💙");
+
 }
 
+
 $("avatarInput").addEventListener("change",function(e){
+
  const file=e.target.files && e.target.files[0];
 
  if(!file)return;
 
  if(file.size>2*1024*1024){
+
   toast("Fotoğraf 2 MB'dan küçük olmalı.");
+
   return;
+
  }
 
  const reader=new FileReader();
 
  reader.onload=function(){
+
   avatarData=reader.result;
+
   saveLocal();
+
   updateUI();
+
   toast("Fotoğraf kaydedildi 📷");
+
  };
 
  reader.onerror=function(){
+
   toast("Fotoğraf okunamadı.");
+
  };
 
  reader.readAsDataURL(file);
+
 });
 
+
 function renderProfile(){
+
  $("profileName").value=playerName;
 
  if(avatarData){
+
   $("profileAvatar").innerHTML="";
+
   const img=document.createElement("img");
+
   img.src=avatarData;
+
   $("profileAvatar").appendChild(img);
+
  }else{
+
   $("profileAvatar").textContent="💙";
+
  }
+
 }
 
 
@@ -697,31 +1051,43 @@ function updateUI(){
  $("pMemories").textContent=state.memories.length;
 
  $("roomText").textContent=roomCode||"-";
+
  $("meName").textContent=playerName||"Sen";
 
  $("me").style.left=pos.x+"px";
  $("me").style.top=pos.y+"px";
 
  if(avatarData){
+
   $("myAvatar").innerHTML="";
+
   const img1=document.createElement("img");
   img1.src=avatarData;
+
   $("myAvatar").appendChild(img1);
 
   $("me").innerHTML="";
+
   const img2=document.createElement("img");
   img2.src=avatarData;
+
   $("me").appendChild(img2);
 
   const span=document.createElement("span");
+
   span.id="meName";
   span.textContent=playerName||"Sen";
+
   $("me").appendChild(span);
+
  }else{
+
   $("myAvatar").textContent="💙";
+
  }
 
  saveLocal();
+
 }
 
 
@@ -732,149 +1098,65 @@ function updateUI(){
 function createRoom(){
 
  if(!socket){
+
   toast("Online bağlantısı yüklenemedi.");
-  return;
- }
-
- saveProfile();
-if (!socket) {
-  toast("Sunucu bağlantısı kurulamadı.");
-  return;
-}
-
-if (!socket.connected) {
-  toast("Sunucuya bağlanılıyor...");
-  socket.connect();
-
-  setTimeout(() => {
-    if (socket.connected) {
-      socket.emit("createRoom", {
-        name: playerName || "Oyuncu 1",
-        token: playerToken || null
-      }, function(result) {
-        if (!result || !result.ok) {
-          toast(result?.error || "Oda oluşturulamadı.");
-          return;
-        }
-
-        roomCode = result.roomCode;
-        playerId = result.playerId;
-        playerToken = result.token;
-        offline = false;
-      });
-    } else {
-      toast("Sunucuya bağlanılamadı.");
-    }
-  }, 1500);
 
   return;
- }
- 
-  }
 
-  roomCode=result.roomCode;
-  playerId=result.playerId;
-  playerToken=result.token;
-
-  offline=false;
-
-  saveLocal();
-  applyState(result.state);
-
-  showScreen("game");
-
-  $("status").textContent="🟢 Online";
-
-  toast("Odan oluşturuldu: "+roomCode);
- });
-}
-
-
-/* =========================
-   ODAYA KATIL
-========================= */
-
-function joinRoom(){
-
- const code=$("joinCode").value.trim();
-
- if(!/^\d{6}$/.test(code)){
-  toast("6 haneli oda kodu gir.");
-  return;
- }
-
- if(!socket){
-  toast("Online bağlantısı yüklenemedi.");
-  return;
  }
 
  saveProfile();
 
- socket.emit("joinRoom",{
-  roomCode:code,
-  name:playerName||"Oyuncu 2",
-  token:playerToken||null
- },function(result){
 
-  if(!result || !result.ok){
-   toast(result?.error||"Odaya katılınamadı.");
-   return;
-  }
+ function sendCreateRoom(){
 
-  roomCode=result.roomCode;
-  playerId=result.playerId;
-  playerToken=result.token;
+  socket.emit("createRoom",{
 
-  offline=false;
+   name:playerName||"Oyuncu 1",
 
-  saveLocal();
-  applyState(result.state);
+   token:playerToken||null
 
-  hideJoin();
-  showScreen("game");
+  },function(result){
 
-  $("status").textContent="🟢 Online";
+   if(!result || !result.ok){
 
-  toast("Odaya katıldın 💙");
- });
-}
+    toast(
+     result?.error||
+     "Oda oluşturulamadı."
+    );
 
+    return;
 
-/* =========================
-   OFFLINE
-========================= */
+   }
 
-function offlineMode(){
- offline=true;
- connected=false;
+   roomCode=result.roomCode;
+   playerId=result.playerId;
+   playerToken=result.token;
 
- roomCode="";
- playerId="";
- playerToken="";
+   offline=false;
 
- saveLocal();
- showScreen("game");
+   saveLocal();
 
- $("status").textContent="🟡 Çevrimdışı";
- $("interactionText").textContent="Çevrimdışı moddasın. 💙";
+   applyState(result.state);
 
- toast("Çevrimdışı oyun başladı.");
-}
+   showScreen("game");
+
+   $("status").textContent="🟢 Online";
+
+   toast(
+    "Odan oluşturuldu: "+
+    roomCode
+   );
+
+  });
+
+ }
 
 
-/* =========================
-   SERVER STATE
-========================= */
+ if(socket.connected){
 
-function applyState(data){
+  connected=true;
 
- if(!data)return;
+  sendCreateRoom();
 
- if(typeof data.hearts!=="undefined")
-  state.hearts=Number(data.hearts)||0;
-
- if(typeof data.xp!=="undefined")
-  state.xp=Number(data.xp)||0;
-
- if(typeof data.hugs!=="undefined")
-  st
+  
